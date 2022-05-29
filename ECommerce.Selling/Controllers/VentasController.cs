@@ -33,49 +33,77 @@ namespace ECommerce.Selling.Controllers
             return response;
         }
 
+        // Forma 2: Método API rápido, que retorna la respuesta de la operación sin encapsular, pero definiendo los estados HTTP de la respuesta.
         // POST api/<VentasController>
         [HttpPost]
         public ActionResult Post([FromBody] VentaModel value)
         {
             ActionResult result = null;
             var response = false;
-            response = VentaModelDAO.Instancia.Insertar(value);
-            if (!response)
+            try
             {
-                result = BadRequest(response);
+                value.Fecha = DateTime.Now;
+                response = VentaModelDAO.Instancia.Insertar(value);
+                if (!response)
+                {
+                    result = BadRequest(response);
+                }
+                else
+                {
+                    result = Ok(value);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                result = Ok(value);
+                result = StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+
             }
             return result;
         }
 
+        //  Forma 3: Método API Completo, usando un ObjectResponse que encapsule el resultado a entregar 
         // PUT api/<VentasController>/5
         [HttpPut("{id}")]
-        public ActionResult Put(string id, [FromBody] VentaModel value)
+        public ActionResult<ObjectResponse<bool>> Put(string id, [FromBody] VentaModel value)
         {
             ActionResult result = null;
-            var response = false;
-            response = VentaModelDAO.Instancia.Actualizar(value);
-            if (!response)
+            ObjectResponse<bool> response = new ObjectResponse<bool> { DataRequest = "Update: " + id };
+            try
             {
-                result = BadRequest(response);
+                var registrado = VentaModelDAO.Instancia.Actualizar(value);
+                if (registrado)
+                {
+                    response.DataResponse = true;
+                    response.StatusResponse = new StatusResponse() { Message = "Operacion Exitosa", Status = "OK" };
+
+                    result = Ok(response);
+                }
+                else
+                {
+                    response.DataResponse = false;
+                    response.StatusResponse = new StatusResponse() { Message = "No se pudo realizar la operación", Status = "NoOK" };
+
+                    result = BadRequest(response);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                result = Ok(value);
+                response.DataResponse = false;
+                response.StatusResponse = new StatusResponse() { Message = ex.Message, Status = "NoOK" };
+
+                result = StatusCode(StatusCodes.Status500InternalServerError, response);
             }
+
             return result;
         }
 
-        //  Forma 2: Método API Completo, usando un ObjectResponse que encapsule el resultado a entregar 
+        //  Forma 3: Método API Completo, usando un ObjectResponse que encapsule el resultado a entregar 
         // DELETE api/<VentasController>/5
         [HttpDelete("{id}")]
         public ActionResult<ObjectResponse<bool>> Delete(string id)
         {
             ActionResult result = null;
-            ObjectResponse<bool> response = new ObjectResponse<bool>(); 
+            ObjectResponse<bool> response = new ObjectResponse<bool>();
 
             response.DataRequest = "Delete: " + id;
             try
@@ -90,20 +118,20 @@ namespace ECommerce.Selling.Controllers
                 }
                 else
                 {
-                    response.DataResponse = true;
+                    response.DataResponse = false;
                     response.StatusResponse = new StatusResponse() { Message = "No se pudo realizar la operación", Status = "NoOK" };
-                    
+
                     result = BadRequest(response);
                 }
             }
             catch (Exception ex)
             {
                 response.DataResponse = false;
-                response.StatusResponse = new StatusResponse() { Message = ex.Message, Status="NoOK" };
+                response.StatusResponse = new StatusResponse() { Message = ex.Message, Status = "NoOK" };
 
                 result = StatusCode(StatusCodes.Status500InternalServerError, response);
             }
-            
+
             return result;
         }
     }
