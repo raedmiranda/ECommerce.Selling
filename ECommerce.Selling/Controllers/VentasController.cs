@@ -1,6 +1,8 @@
 ﻿using ECommerce.Selling.DataAccess;
 using ECommerce.Selling.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -11,6 +13,7 @@ namespace ECommerce.Selling.Controllers
     [ApiController]
     public class VentasController : ControllerBase
     {
+        // Forma 1: Método API rápido, que retorna la respuesta de la operación sin encapsular.
         // GET: api/<VentasController>
         [HttpGet]
         public IEnumerable<VentaModel> Get()
@@ -20,6 +23,7 @@ namespace ECommerce.Selling.Controllers
             return response;
         }
 
+        // Forma 1: Método API rápido, que retorna la respuesta de la operación sin encapsular.
         // GET api/<VentasController>/5
         [HttpGet("{id}")]
         public VentaModel Get(string id)
@@ -65,22 +69,41 @@ namespace ECommerce.Selling.Controllers
             return result;
         }
 
+        //  Forma 2: Método API Completo, usando un ObjectResponse que encapsule el resultado a entregar 
         // DELETE api/<VentasController>/5
         [HttpDelete("{id}")]
-        public ActionResult Delete(string id)
+        public ActionResult<ObjectResponse<bool>> Delete(string id)
         {
             ActionResult result = null;
-            var response = false;
-            response = VentaModelDAO.Instancia.Eliminar(id);
-            if (!response)
-            {
-                result = BadRequest(response);
-            }
-            else
-            {
+            ObjectResponse<bool> response = new ObjectResponse<bool>(); 
 
-                result = Ok(id);
+            response.DataRequest = "Delete: " + id;
+            try
+            {
+                var registrado = VentaModelDAO.Instancia.Eliminar(id);
+                if (registrado)
+                {
+                    response.DataResponse = true;
+                    response.StatusResponse = new StatusResponse() { Message = "Operacion Exitosa", Status = "OK" };
+
+                    result = Ok(response);
+                }
+                else
+                {
+                    response.DataResponse = true;
+                    response.StatusResponse = new StatusResponse() { Message = "No se pudo realizar la operación", Status = "NoOK" };
+                    
+                    result = BadRequest(response);
+                }
             }
+            catch (Exception ex)
+            {
+                response.DataResponse = false;
+                response.StatusResponse = new StatusResponse() { Message = ex.Message, Status="NoOK" };
+
+                result = StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+            
             return result;
         }
     }
