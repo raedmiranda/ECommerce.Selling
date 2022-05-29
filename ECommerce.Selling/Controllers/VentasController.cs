@@ -19,7 +19,14 @@ namespace ECommerce.Selling.Controllers
         public IEnumerable<VentaModel> Get()
         {
             var response = new List<VentaModel>();
-            response = VentaModelDAO.Instancia.Listar();
+            try
+            {
+                response = VentaModelDAO.Instancia.Listar();
+            }
+            catch (Exception)
+            {
+                response = null;
+            }
             return response;
         }
 
@@ -29,7 +36,14 @@ namespace ECommerce.Selling.Controllers
         public VentaModel Get(string id)
         {
             var response = new VentaModel();
-            response = VentaModelDAO.Instancia.Devolver(id);
+            try
+            {
+                response = VentaModelDAO.Instancia.Devolver(id);
+            }
+            catch (Exception)
+            {
+                response = null;
+            }
             return response;
         }
 
@@ -44,14 +58,10 @@ namespace ECommerce.Selling.Controllers
             {
                 value.Fecha = DateTime.Now;
                 response = VentaModelDAO.Instancia.Insertar(value);
-                if (!response)
-                {
-                    result = BadRequest(response);
-                }
-                else
-                {
+                if (response)
                     result = Ok(value);
-                }
+                else
+                    result = BadRequest(response);
             }
             catch (Exception ex)
             {
