@@ -31,24 +31,57 @@ namespace ECommerce.Selling.Controllers
 
         // POST api/<VentasController>
         [HttpPost]
-        public void Post([FromBody] VentaModel value)
+        public ActionResult Post([FromBody] VentaModel value)
         {
-            
-            
+            ActionResult result = null;
+            var response = false;
+            response = VentaModelDAO.Instancia.Insertar(value);
+            if (!response)
+            {
+                result = BadRequest(response);
+            }
+            else
+            {
+                result = Ok(value);
+            }
+            return result;
         }
 
         // PUT api/<VentasController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] VentaModel value)
+        public ActionResult Put(string id, [FromBody] VentaModel value)
         {
-
+            ActionResult result = null;
+            var response = false;
+            response = VentaModelDAO.Instancia.Actualizar(value);
+            if (!response)
+            {
+                result = BadRequest(response);
+            }
+            else
+            {
+                result = Ok(value);
+            }
+            return result;
         }
 
         // DELETE api/<VentasController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(string id)
         {
+            ActionResult result = null;
+            var response = false;
+            response = VentaModelDAO.Instancia.Eliminar(id);
+            if (!response)
+            {
+                result = BadRequest(response);
+            }
+            else
+            {
 
+                result = Ok(id);
+            }
+            return result;
         }
     }
 }
