@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ECommerce.Selling.DataAccess\ECommerce.Selling.DataAccess.csproj" />
     <ProjectReference Include="..\ECommerce.Selling.Models\ECommerce.Selling.Models.csproj" />
   </ItemGroup>
 

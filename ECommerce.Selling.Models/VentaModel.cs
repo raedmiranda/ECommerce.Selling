@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ECommerce.Selling.Models
 {
@@ -6,8 +7,10 @@ namespace ECommerce.Selling.Models
     {
         public string Id { get; set; }
         public int IdUsuario { get; set; }
-        public decimal precioTotal { get; set; }
-        public string medioDePago { get; set; }
-        public DateTime fecha { get; set; }
+        public decimal PrecioTotal { get; set; }
+        public string MedioDePago { get; set; }
+        public DateTime Fecha { get; set; }
+
+        public List<VentaDetalleModel> Detalle { get; set; }
     }
 }
